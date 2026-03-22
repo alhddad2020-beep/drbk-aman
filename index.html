@@ -6,7 +6,6 @@
     <title>دربك أمان - حالة الطرق في اليمن</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -20,13 +19,10 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>🛑 نظام دربك أمان - آخر تقارير الطرق</h1>
     <p>مرحباً بك يا أبو غيث.. هنا تظهر البلاغات اللي يرسلها الناس عبر البوت فوراً.</p>
-    
     <button class="refresh-btn" onclick="location.reload()">تحديث البيانات 🔄</button>
-
     <table class="status-table">
         <thead>
             <tr>
@@ -37,44 +33,35 @@
                 <th>الوقت</th>
             </tr>
         </thead>
-        <tbody id="reports-body">
-            </tbody>
+        <tbody id="reports-body"></tbody>
     </table>
 </div>
-
 <script>
-    // بياناتك الحقيقية من الصورة
-     const firebaseConfig = {
-    apiKey: "AIzaSyCgdg7cnfyRFrI9J7O3ZpXCBgSQDFbhCU0",
-    authDomain: "drbk-aman-346a1.firebaseapp.com",
-    projectId: "drbk-aman-346a1",
-    storageBucket: "drbk-aman-346a1.firebasestorage.app",
-    messagingSenderId: "200126418611",
-    appId: "1:200126418611:web:5886550910d2318055eac6",
-    measurementId: "G-FMRV0XPEEY"
-  };
- 
-
+    const firebaseConfig = {
+        apiKey: "AIzaSyCgdg7cnfyRFrI9J7O3ZpXCBgSQDFbhCU0",
+        authDomain: "drbk-aman-346a1.firebaseapp.com",
+        projectId: "drbk-aman-346a1",
+        storageBucket: "drbk-aman-346a1.firebasestorage.app",
+        messagingSenderId: "200126418611",
+        appId: "1:200126418611:web:5886550910d2318055eac6",
+        measurementId: "G-FMRV0XPEEY"
+    };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    const reportsRef = database.ref('road_reports');
+    const reportsRef = database.ref('reports');
     
     reportsRef.on('value', (snapshot) => {
         const reportsBody = document.getElementById('reports-body');
         reportsBody.innerHTML = ""; 
-        
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
-            const report = data.report;
-            // تحويل الوقت من نظام السيرفر إلى توقيت اليمن
-            const time = new Date(data.timestamp).toLocaleString('ar-YE');
-
+            const time = new Date(data.timestamp || Date.now()).toLocaleString('ar-YE');
             const row = `
                 <tr>
-                    <td><b>${report.الموقع}</b></td>
-                    <td>${report.الحالة}</td>
-                    <td>${report.نصيحة_للسواقين}</td>
-                    <td class="${report.مستوى_الخطر > 3 ? 'danger-high' : 'danger-low'}">${report.مستوى_الخطر}/5</td>
+                    <td><b>${data.الموقع || 'غير محدد'}</b></td>
+                    <td>${data.الحالة || 'لا يوجد وصف'}</td>
+                    <td>${data.نصيحة_الخبير || 'انتبه لطريقك'}</td>
+                    <td class="${data.danger_level === 'عالي' ? 'danger-high' : 'danger-low'}">${data.danger_level || 'منخفض'}</td>
                     <td style="font-size: 0.8em;">${time}</td>
                 </tr>
             `;
@@ -82,6 +69,5 @@
         });
     });
 </script>
-
 </body>
 </html>
