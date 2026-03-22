@@ -63,6 +63,23 @@
             reportsBody.insertAdjacentHTML('afterbegin', row); 
         });
     });
-</script>
+</script>var map = L.map('map').setView([15.5527, 48.5164], 7);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+db.collection("reports").onSnapshot((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.location) {
+            // هنا نحتاج نحول اسم الموقع لخطوط طول وعرض،
+            // بشكل مبدئي بضيف ماركر في نص اليمن للتجربة.
+            L.marker([15.5527, 48.5164]).addTo(map)
+                .bindPopup('<b>' + data.location + '</b><br>' + data.status);
+        }
+    });
+});
+ش١ش
 </body>
 </html>
