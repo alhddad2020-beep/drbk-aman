@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دربك أمان - حالة الطرق في اليمن</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -15,14 +15,12 @@
         .status-table th { background-color: #3498db; color: white; }
         .danger-low { color: green; font-weight: bold; }
         .danger-high { color: red; font-weight: bold; }
-        .refresh-btn { background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-size: 16px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🛑 نظام دربك أمان - آخر تقارير الطرق</h1>
-    <p>مرحباً بك يا أبو غيث.. هنا تظهر البلاغات اللي يرسلها الناس عبر البوت فوراً.</p>
-    <button class="refresh-btn" onclick="location.reload()">تحديث البيانات 🔄</button>
+    <h1>🛑 نظام دربك أمان - آخر التقارير</h1>
+    <p>مرحباً بك يا أبو غيث.. البيانات تظهر هنا من Firestore.</p>
     <table class="status-table">
         <thead>
             <tr>
@@ -30,7 +28,6 @@
                 <th>الحالة</th>
                 <th>نصيحة الخبير</th>
                 <th>مستوى الخطر</th>
-                <th>الوقت</th>
             </tr>
         </thead>
         <tbody id="reports-body"></tbody>
@@ -43,26 +40,22 @@
         projectId: "drbk-aman-346a1",
         storageBucket: "drbk-aman-346a1.firebasestorage.app",
         messagingSenderId: "200126418611",
-        appId: "1:200126418611:web:5886550910d2318055eac6",
-        measurementId: "G-FMRV0XPEEY"
+        appId: "1:200126418611:web:5886550910d2318055eac6"
     };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const reportsRef = database.ref('reports');
-    
-    reportsRef.on('value', (snapshot) => {
+    const db = firebase.firestore();
+
+    db.collection("reports").onSnapshot((querySnapshot) => {
         const reportsBody = document.getElementById('reports-body');
         reportsBody.innerHTML = ""; 
-        snapshot.forEach((childSnapshot) => {
-            const data = childSnapshot.val();
-            const time = new Date(data.timestamp || Date.now()).toLocaleString('ar-YE');
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
             const row = `
                 <tr>
-                    <td><b>${data.الموقع || 'غير محدد'}</b></td>
-                    <td>${data.الحالة || 'لا يوجد وصف'}</td>
-                    <td>${data.نصيحة_الخبير || 'انتبه لطريقك'}</td>
+                    <td><b>${data.location || 'غير محدد'}</b></td>
+                    <td>${data.status || 'لا يوجد وصف'}</td>
+                    <td>${data.advice || 'انتبه لطريقك'}</td>
                     <td class="${data.danger_level === 'عالي' ? 'danger-high' : 'danger-low'}">${data.danger_level || 'منخفض'}</td>
-                    <td style="font-size: 0.8em;">${time}</td>
                 </tr>
             `;
             reportsBody.insertAdjacentHTML('afterbegin', row); 
