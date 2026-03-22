@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دربك أمان - حالة الطرق في اليمن</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .status-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .status-table th, .status-table td { padding: 12px; border: 1px solid #ddd; text-align: center; }
+        .status-table th { background-color: #3498db; color: white; }
+        .danger-low { color: green; font-weight: bold; }
+        .danger-high { color: red; font-weight: bold; }
+        .refresh-btn { background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🛑 نظام دربك أمان - آخر تقارير الطرق</h1>
+    <p>مرحباً بك يا أبو غيث.. هنا تظهر البلاغات اللي يرسلها الناس عبر البوت فوراً.</p>
+    
+    <button class="refresh-btn" onclick="location.reload()">تحديث البيانات 🔄</button>
+
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>الموقع</th>
+                <th>الحالة</th>
+                <th>نصيحة الخبير</th>
+                <th>مستوى الخطر</th>
+                <th>الوقت</th>
+            </tr>
+        </thead>
+        <tbody id="reports-body">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // بياناتك الحقيقية من الصورة
+    const firebaseConfig = {
+        apiKey: "AIzaSyBe6K-uXU_Xv_M3_z6_z6_z6_z6_z6", // لاحظت أنه لم يظهر كاملاً في الصورة، تأكد من نسخه كاملاً من إعداداتك
+        authDomain: "drbk-aman.firebaseapp.com",
+        databaseURL: "https://drbk-aman-default-rtdb.firebaseio.com/",
+        projectId: "drbk-aman",
+        storageBucket: "drbk-aman.appspot.com",
+        messagingSenderId: "1056580971485",
+        appId: "1:1056580971485:web:5ed3d964f44c45543c39d8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const reportsRef = database.ref('road_reports');
+    
+    reportsRef.on('value', (snapshot) => {
+        const reportsBody = document.getElementById('reports-body');
+        reportsBody.innerHTML = ""; 
+        
+        snapshot.forEach((childSnapshot) => {
+            const data = childSnapshot.val();
+            const report = data.report;
+            // تحويل الوقت من نظام السيرفر إلى توقيت اليمن
+            const time = new Date(data.timestamp).toLocaleString('ar-YE');
+
+            const row = `
+                <tr>
+                    <td><b>${report.الموقع}</b></td>
+                    <td>${report.الحالة}</td>
+                    <td>${report.نصيحة_للسواقين}</td>
+                    <td class="${report.مستوى_الخطر > 3 ? 'danger-high' : 'danger-low'}">${report.مستوى_الخطر}/5</td>
+                    <td style="font-size: 0.8em;">${time}</td>
+                </tr>
+            `;
+            reportsBody.insertAdjacentHTML('afterbegin', row); 
+        });
+    });
+</script>
+
+</body>
+</html>
