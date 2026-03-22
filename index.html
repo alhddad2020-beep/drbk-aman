@@ -62,8 +62,7 @@
             `;
             reportsBody.insertAdjacentHTML('afterbegin', row); 
         });
-    });
-</script>var map = L.map('map').setView([15.5527, 48.5164], 7);
+    });var map = L.map('map').setView([15.5527, 48.5164], 7);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -79,7 +78,8 @@ db.collection("reports").onSnapshot((querySnapshot) => {
                 .bindPopup('<b>' + data.location + '</b><br>' + data.status);
         }
     });
-});
+})
+</script>
 ش١ش
 </body>
 </html>
